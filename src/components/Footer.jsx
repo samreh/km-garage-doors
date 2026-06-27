@@ -1,3 +1,5 @@
+import kmLogo from '../assets/km-w-logo.svg'
+
 export default function Footer() {
   return (
     <footer style={{ background: '#23090f', color: '#c9a9a8' }}>
@@ -12,14 +14,7 @@ export default function Footer() {
           {/* Brand */}
           <div style={{ maxWidth: 340 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 13 }}>
-              <svg width="58" height="40" viewBox="0 0 62 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect width="62" height="40" rx="2" fill="#3d1019" />
-                <text x="31" y="26" fontFamily="Archivo,Arial,sans-serif" fontWeight="900" fontSize="20" letterSpacing="-1" fill="#f3e7df" textAnchor="middle">KM</text>
-                <rect x="4" y="8" width="54" height="2" fill="#f3e7df" opacity="0.15" />
-                <rect x="4" y="14" width="54" height="2" fill="#f3e7df" opacity="0.15" />
-                <rect x="4" y="20" width="54" height="2" fill="#f3e7df" opacity="0.15" />
-                <rect x="4" y="26" width="54" height="2" fill="#f3e7df" opacity="0.15" />
-              </svg>
+              <img src={kmLogo} alt="KM Garage Doors" style={{ height: 40, width: 'auto', display: 'block', flex: 'none' }} />
               <span style={{
                 fontFamily: "'Archivo', sans-serif", fontWeight: 900,
                 fontSize: 18, letterSpacing: '-0.02em', color: '#f3e7df',

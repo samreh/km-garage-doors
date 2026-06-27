@@ -1,26 +1,30 @@
-// KM Garage Doors logo mark (garage door stripes)
-function Logo() {
-  return (
-    <svg width="62" height="40" viewBox="0 0 62 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect width="62" height="40" rx="2" fill="#2e0f17" />
-      <text
-        x="31" y="26"
-        fontFamily="Archivo, Arial, sans-serif"
-        fontWeight="900"
-        fontSize="20"
-        letterSpacing="-1"
-        fill="#f3e7df"
-        textAnchor="middle"
-      >KM</text>
-      <rect x="4" y="8" width="54" height="2" fill="#2e0f17" opacity="0.5" />
-      <rect x="4" y="14" width="54" height="2" fill="#2e0f17" opacity="0.5" />
-      <rect x="4" y="20" width="54" height="2" fill="#2e0f17" opacity="0.5" />
-      <rect x="4" y="26" width="54" height="2" fill="#2e0f17" opacity="0.5" />
-    </svg>
-  )
-}
+import { useState, useEffect } from 'react'
+import kmLogo from '../assets/km-b-logo.svg'
+
+const navLinks = [
+  ['#services', 'Services'],
+  ['#coverage', 'Coverage'],
+  ['#about', 'About'],
+  ['#faq', 'FAQ'],
+]
 
 export default function Header() {
+  const [open, setOpen] = useState(false)
+
+  // Lock body scroll while the mobile menu is open
+  useEffect(() => {
+    document.body.style.overflow = open ? 'hidden' : ''
+    return () => { document.body.style.overflow = '' }
+  }, [open])
+
+  // Close the menu on Escape for accessibility
+  useEffect(() => {
+    if (!open) return
+    const onKey = (e) => { if (e.key === 'Escape') setOpen(false) }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [open])
+
   return (
     <header style={{
       position: 'sticky', top: 0, zIndex: 50,
@@ -34,12 +38,12 @@ export default function Header() {
           display: 'flex', flexWrap: 'wrap', gap: '6px 22px',
           alignItems: 'center', justifyContent: 'space-between',
         }}>
-          <span style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 500 }}>
+          <span className="topbar-tagline" style={{ alignItems: 'center', gap: 8, fontWeight: 500 }}>
             Over 25 years serving Birmingham &amp; the Midlands
           </span>
           <span style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
             <a href="tel:+447958323265" style={{ color: '#f3e7df', textDecoration: 'none', fontWeight: 600 }}>07958 323265</a>
-            <a href="mailto:kmgaragedoors@gmail.com" style={{ color: '#e8d4cd', textDecoration: 'none' }}>kmgaragedoors@gmail.com</a>
+            <a className="topbar-email" href="mailto:kmgaragedoors@gmail.com" style={{ color: '#e8d4cd', textDecoration: 'none' }}>kmgaragedoors@gmail.com</a>
           </span>
         </div>
       </div>
@@ -50,24 +54,25 @@ export default function Header() {
         padding: '12px clamp(18px,5vw,40px)',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 18,
       }}>
-        <a href="#top" style={{ display: 'flex', alignItems: 'center', gap: 16, textDecoration: 'none', color: '#241419' }}>
-          <Logo />
+        <a href="#top" onClick={() => setOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 16, textDecoration: 'none', color: '#241419' }}>
+          <img src={kmLogo} alt="KM Garage Doors" style={{ height: 40, width: 'auto', display: 'block', flex: 'none' }} />
           <span style={{ display: 'flex', flexDirection: 'column', lineHeight: 1 }}>
             <span style={{
               fontFamily: "'Archivo', sans-serif", fontWeight: 900, fontSize: 18,
               letterSpacing: '-0.02em', color: '#2e0f17',
             }}>KM GARAGE DOORS</span>
-            <span style={{
+            <span className="brand-subline" style={{
               fontSize: 11, letterSpacing: '0.16em', fontWeight: 600,
               color: '#9a7f86', marginTop: 4, textTransform: 'uppercase',
             }}>Repairs · Installation · Servicing</span>
           </span>
         </a>
-        <nav style={{ display: 'flex', alignItems: 'center', gap: 'clamp(14px,2.4vw,30px)' }}>
-          <a href="#services" style={{ fontWeight: 600, fontSize: 15, color: '#43232c', textDecoration: 'none' }}>Services</a>
-          <a href="#coverage" style={{ fontWeight: 600, fontSize: 15, color: '#43232c', textDecoration: 'none' }}>Coverage</a>
-          <a href="#about" style={{ fontWeight: 600, fontSize: 15, color: '#43232c', textDecoration: 'none' }}>About</a>
-          <a href="#faq" style={{ fontWeight: 600, fontSize: 15, color: '#43232c', textDecoration: 'none' }}>FAQ</a>
+
+        {/* Desktop nav */}
+        <nav className="desktop-nav">
+          {navLinks.map(([href, label]) => (
+            <a key={href} href={href} style={{ fontWeight: 600, fontSize: 15, color: '#43232c', textDecoration: 'none' }}>{label}</a>
+          ))}
           <a
             href="#contact"
             className="nav-cta"
@@ -79,7 +84,28 @@ export default function Header() {
             }}
           >Get a free quote</a>
         </nav>
+
+        {/* Burger button (mobile / tablet) */}
+        <button
+          className={`burger-btn${open ? ' open' : ''}`}
+          aria-label={open ? 'Close menu' : 'Open menu'}
+          aria-expanded={open}
+          aria-controls="mobile-nav"
+          onClick={() => setOpen(o => !o)}
+        >
+          <span className="burger-bar" />
+          <span className="burger-bar" />
+          <span className="burger-bar" />
+        </button>
       </div>
+
+      {/* Mobile dropdown nav */}
+      <nav id="mobile-nav" className={`mobile-nav${open ? ' open' : ''}`}>
+        {navLinks.map(([href, label]) => (
+          <a key={href} href={href} onClick={() => setOpen(false)}>{label}</a>
+        ))}
+        <a className="mobile-cta" href="#contact" onClick={() => setOpen(false)}>Get a free quote</a>
+      </nav>
     </header>
   )
 }

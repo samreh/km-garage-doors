@@ -57,3 +57,119 @@ input, select, textarea, button {
 .submit-btn:hover {
   background: #6d2035 !important;
 }
+
+/* ===== Header / responsive nav ===== */
+
+/* Desktop nav links + CTA shown inline */
+.desktop-nav {
+  display: flex;
+  align-items: center;
+  gap: clamp(14px, 2.4vw, 30px);
+}
+
+/* Burger button hidden on desktop */
+.burger-btn {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid #e0cfc7;
+  border-radius: 6px;
+  cursor: pointer;
+  flex: none;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.burger-btn:hover {
+  background: #f3ece7;
+  border-color: #d9c4bc;
+}
+
+/* Burger icon bars */
+.burger-bar {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: #2e0f17;
+  border-radius: 2px;
+  transition: transform 0.25s ease, opacity 0.2s ease;
+}
+.burger-bar + .burger-bar {
+  margin-top: 5px;
+}
+.burger-btn.open .burger-bar:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+.burger-btn.open .burger-bar:nth-child(2) {
+  opacity: 0;
+}
+.burger-btn.open .burger-bar:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+/* Mobile dropdown panel */
+.mobile-nav {
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px clamp(18px, 5vw, 40px) 18px;
+  border-top: 1px solid #ece2db;
+  background: #faf6f3;
+  animation: navDrop 0.22s ease;
+}
+.mobile-nav a {
+  font-weight: 600;
+  font-size: 16px;
+  color: #43232c;
+  text-decoration: none;
+  padding: 13px 6px;
+  border-radius: 6px;
+  transition: background 0.15s ease;
+}
+.mobile-nav a:hover {
+  background: #f3ece7;
+}
+.mobile-nav .mobile-cta {
+  margin-top: 8px;
+  text-align: center;
+  background: #5b1a2b;
+  color: #f3e7df;
+  font-weight: 700;
+  padding: 14px 20px;
+  border-radius: 3px;
+  box-shadow: 0 2px 0 #3a0f1a;
+}
+.mobile-nav .mobile-cta:hover {
+  background: #6d2035;
+}
+
+@keyframes navDrop {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Breakpoint: collapse nav into burger on tablet + mobile */
+@media (max-width: 860px) {
+  .desktop-nav { display: none; }
+  .burger-btn { display: inline-flex; }
+  .mobile-nav.open { display: flex; }
+}
+
+/* Top utility-bar tagline (display lives here so the media query can hide it) */
+.topbar-tagline {
+  display: flex;
+}
+
+/* Trim the top utility bar on small screens */
+@media (max-width: 600px) {
+  .topbar-tagline { display: none; }
+  .topbar-email { display: none; }
+}
+
+/* Shrink brand sub-line on very small screens */
+@media (max-width: 400px) {
+  .brand-subline { display: none; }
+}

@@ -1,3 +1,5 @@
+import heroImg from '../assets/hero-install.jpg'
+
 const trust = [
   { big: '25+ yrs', label: 'On the tools locally' },
   { big: 'Free', label: 'No-obligation quotes' },
@@ -49,8 +51,7 @@ export default function Hero() {
             Fast, friendly garage door repairs, installation and servicing across{' '}
             <strong style={{ color: '#fbf4ef', fontWeight: 700 }}>
               Birmingham, Leicester, Hinckley, Coventry and Nuneaton
-            </strong>{' '}
-            — backed by over 25 years on the tools.
+            </strong>.
           </p>
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 14, marginTop: 34 }}>
@@ -81,21 +82,21 @@ export default function Hero() {
         <div style={{ flex: '1 1 380px', minWidth: 280 }}>
           <div style={{
             position: 'relative', width: '100%', aspectRatio: '4/3.4',
-            borderRadius: 6, overflow: 'hidden',
-            background: 'repeating-linear-gradient(135deg,#4a1322 0,#4a1322 11px,#421019 11px,#421019 22px)',
+            borderRadius: 6, overflow: 'hidden', background: '#3a0f1a',
             boxShadow: '0 24px 60px rgba(0,0,0,0.45),inset 0 0 0 1px rgba(243,231,223,0.12)',
-            display: 'flex', alignItems: 'flex-end',
           }}>
+            <img
+              src={heroImg}
+              alt="KM Garage Doors technician fitting a sectional garage door at a Birmingham home"
+              loading="eager"
+              style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+            />
+            {/* subtle inner ring to match the dark frame */}
             <div style={{
-              position: 'absolute', inset: 0,
-              background: 'repeating-linear-gradient(180deg,transparent 0,transparent 17%,rgba(0,0,0,0.28) 17%,rgba(0,0,0,0.28) calc(17% + 2px))',
+              position: 'absolute', inset: 0, pointerEvents: 'none',
+              boxShadow: 'inset 0 0 0 1px rgba(243,231,223,0.12)',
+              borderRadius: 6,
             }} />
-            <span style={{
-              position: 'relative', margin: 16,
-              fontFamily: 'ui-monospace,monospace', fontSize: 12, letterSpacing: '0.04em',
-              color: '#e8d4cd', background: 'rgba(35,9,15,0.7)',
-              padding: '7px 11px', borderRadius: 3,
-            }}>[ photo: sectional door install — Birmingham ]</span>
           </div>
         </div>
       </div>
