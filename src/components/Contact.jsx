@@ -11,29 +11,81 @@ const serviceNames = [
   'Roller, Sectional & Up-and-Over',
 ]
 
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+const emptyForm = { name: '', email: '', phone: '', service: '', message: '', company: '' }
+
 export default function Contact() {
-  const [form, setForm] = useState({ name: '', email: '', phone: '', service: '', message: '' })
+  const [form, setForm] = useState(emptyForm)
+  const [errors, setErrors] = useState({})
+  const [status, setStatus] = useState('idle') // idle | sending | error
   const [submitted, setSubmitted] = useState(false)
   const [submittedName, setSubmittedName] = useState('')
 
-  const set = (field) => (e) => setForm(f => ({ ...f, [field]: e.target.value }))
+  const set = (field) => (e) => {
+    setForm(f => ({ ...f, [field]: e.target.value }))
+    setErrors(prev => (prev[field] ? { ...prev, [field]: undefined } : prev))
+  }
 
-  const onSubmit = (e) => {
+  const validate = () => {
+    const e = {}
+    if (!form.name.trim()) e.name = 'Please enter your name'
+    if (!EMAIL_RE.test(form.email.trim())) e.email = 'Please enter a valid email'
+    if (!form.phone.trim()) e.phone = 'Please enter a phone number'
+    if (!form.service.trim()) e.service = 'Please select a service'
+    if (!form.message.trim()) e.message = 'Please add a few details'
+    return e
+  }
+
+  const onSubmit = async (e) => {
     e.preventDefault()
-    setSubmittedName((form.name || 'there').trim())
-    setSubmitted(true)
+    const found = validate()
+    if (Object.keys(found).length) {
+      setErrors(found)
+      return
+    }
+    setErrors({})
+    setStatus('sending')
+    try {
+      const res = await fetch('/api/quote', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok || !data.ok) {
+        if (data.errors) setErrors(data.errors)
+        setStatus('error')
+        return
+      }
+      setSubmittedName(form.name.trim() || 'there')
+      setSubmitted(true)
+      setForm(emptyForm)
+      setStatus('idle')
+    } catch {
+      setStatus('error')
+    }
   }
 
-  const inputStyle = {
+  const sending = status === 'sending'
+
+  const fieldStyle = (field) => ({
     width: '100%', padding: '13px 15px',
-    border: '1px solid #e0cfc7', borderRadius: 4,
-    fontSize: 15, background: '#fff', color: '#241419', marginBottom: 14,
+    border: `1px solid ${errors[field] ? '#c0392b' : '#e0cfc7'}`, borderRadius: 4,
+    fontSize: 15, background: '#fff', color: '#241419', marginBottom: errors[field] ? 4 : 14,
     outline: 'none',
-  }
+  })
 
   const labelStyle = {
     display: 'block', fontSize: 13, fontWeight: 700, color: '#5b3a3f', marginBottom: 6,
   }
+
+  const errStyle = {
+    fontSize: 12.5, color: '#c0392b', fontWeight: 600, margin: '0 0 12px',
+  }
+
+  const FieldError = ({ name }) =>
+    errors[name] ? <p style={errStyle}>{errors[name]}</p> : null
 
   return (
     <section id="contact" style={{
@@ -123,45 +175,77 @@ export default function Contact() {
                 </p>
               </div>
             ) : (
-              <form onSubmit={onSubmit}>
+              <form onSubmit={onSubmit} noValidate>
                 <h3 style={{
                   fontFamily: "'Archivo', sans-serif", fontWeight: 900,
                   fontSize: 22, color: '#2e0f17', margin: '0 0 18px',
                 }}>Request a free quote</h3>
 
+                {/* Honeypot — hidden from real users, catches bots */}
+                <input
+                  type="text" name="company" tabIndex={-1} autoComplete="off"
+                  value={form.company} onChange={set('company')}
+                  aria-hidden="true"
+                  style={{ position: 'absolute', left: '-9999px', width: 1, height: 1, opacity: 0 }}
+                />
+
                 <label style={labelStyle}>Name</label>
-                <input value={form.name} onChange={set('name')} required
-                  placeholder="Your name" style={inputStyle} />
+                <input value={form.name} onChange={set('name')}
+                  aria-invalid={!!errors.name}
+                  placeholder="Your name" style={fieldStyle('name')} />
+                <FieldError name="name" />
 
                 <label style={labelStyle}>Email</label>
-                <input type="email" value={form.email} onChange={set('email')} required
-                  placeholder="you@email.com" style={inputStyle} />
+                <input type="email" value={form.email} onChange={set('email')}
+                  aria-invalid={!!errors.email}
+                  placeholder="you@email.com" style={fieldStyle('email')} />
+                <FieldError name="email" />
 
                 <label style={labelStyle}>Phone</label>
-                <input value={form.phone} onChange={set('phone')}
-                  placeholder="07000 000000" style={inputStyle} />
+                <input type="tel" value={form.phone} onChange={set('phone')}
+                  aria-invalid={!!errors.phone}
+                  placeholder="07000 000000" style={fieldStyle('phone')} />
+                <FieldError name="phone" />
 
                 <label style={labelStyle}>Service required</label>
-                <select value={form.service} onChange={set('service')} style={inputStyle}>
+                <select value={form.service} onChange={set('service')}
+                  aria-invalid={!!errors.service}
+                  style={fieldStyle('service')}>
                   <option value="">Select a service…</option>
                   {serviceNames.map(n => <option key={n} value={n}>{n}</option>)}
                 </select>
+                <FieldError name="service" />
 
                 <label style={labelStyle}>Details</label>
                 <textarea value={form.message} onChange={set('message')} rows={3}
+                  aria-invalid={!!errors.message}
                   placeholder="Tell us a little about the job…"
-                  style={{ ...inputStyle, resize: 'vertical' }} />
+                  style={{ ...fieldStyle('message'), resize: 'vertical' }} />
+                <FieldError name="message" />
+
+                {status === 'error' && (
+                  <p style={{
+                    fontSize: 13.5, color: '#c0392b', fontWeight: 600,
+                    background: '#fbeae8', border: '1px solid #f0c8c2',
+                    borderRadius: 4, padding: '10px 12px', margin: '0 0 14px',
+                  }}>
+                    Sorry, something went wrong sending your request. Please try again or
+                    call <a href="tel:+447958323265" style={{ color: '#5b1a2b', fontWeight: 700 }}>07958 323265</a>.
+                  </p>
+                )}
 
                 <button
                   type="submit"
                   className="submit-btn"
+                  disabled={sending}
                   style={{
                     width: '100%', background: '#5b1a2b', color: '#f3e7df',
                     border: 'none', fontFamily: "'Archivo', sans-serif",
                     fontWeight: 800, fontSize: 16, padding: 15, borderRadius: 4,
-                    cursor: 'pointer', boxShadow: '0 3px 0 #3a0f1a',
+                    cursor: sending ? 'wait' : 'pointer', opacity: sending ? 0.75 : 1,
+                    boxShadow: '0 3px 0 #3a0f1a',
                   }}
-                >Send my request</button>
+                >{sending ? 'Sending…' : 'Send my request'}</button>
                 <p style={{ fontSize: 12, color: '#9a7f86', margin: '12px 0 0', textAlign: 'center' }}>
                   No obligation. We'll only use your details to reply to your enquiry.
                 </p>
